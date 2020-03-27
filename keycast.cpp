@@ -5,12 +5,13 @@
 // msbuild keycastow.vcxproj /t:Clean
 // rc keycastow.rc && cl -DUNICODE -D_UNICODE keycast.cpp keylog.cpp keycastow.res user32.lib shell32.lib gdi32.lib Comdlg32.lib comctl32.lib
 
+#include "keycast.h"
 #include <windows.h>
 #include <windowsx.h>
 #include <Commctrl.h>
 #include <stdio.h>
 #include <DbgHelp.h>
-#pragma comment(lib, "DbgHelp.lib")
+// #pragma comment(lib, "DbgHelp.lib")
 
 #include <gdiplus.h>
 using namespace Gdiplus;
@@ -79,7 +80,7 @@ POINT canvasOrigin;
 #include "keycast.h"
 #include "keylog.h"
 
-WCHAR *szWinName = L"KeyCastOW";
+const WCHAR *szWinName = L"KeyCastOW";
 HWND hMainWnd;
 HWND hDlgSettings;
 RECT settingsDlgRect;
@@ -163,11 +164,11 @@ void stamp(HWND hwnd, LPCWSTR text) {
     SIZE wndSize = {2*labelSettings.borderSize+(LONG)rc.Width, 2*labelSettings.borderSize+(LONG)rc.Height};
     SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, wndSize.cx, wndSize.cy, SWP_NOMOVE|SWP_NOACTIVATE);
 
-    SolidBrush bgBrush(Color::Color(0xaf007cfe));
+    SolidBrush bgBrush(Color(0xaf007cfe));
     g.FillRectangle(&bgBrush, rc);
     SolidBrush textBrushPlus(Color(0xaf303030));
     g.DrawString(text, wcslen(text), fontPlus, rc, &format, &textBrushPlus);
-    SolidBrush brushPlus(Color::Color(0xaffefefe));
+    SolidBrush brushPlus(Color(0xaffefefe));
     rc.X += 2;
     rc.Y += 2;
     g.DrawString(text, wcslen(text), fontPlus, rc, &format, &brushPlus);
@@ -239,8 +240,8 @@ void updateLabel(int i) {
         }
         rc.Height = (rc.Height < labelSettings.cornerSize) ? labelSettings.cornerSize : rc.Height;
         int bgAlpha = (int)(r*labelSettings.bgOpacity), textAlpha = (int)(r*labelSettings.textOpacity), borderAlpha = (int)(r*labelSettings.borderOpacity);
-        Pen penPlus(Color::Color(BR(borderAlpha, labelSettings.borderColor)), labelSettings.borderSize+0.0f);
-        SolidBrush brushPlus(Color::Color(BR(bgAlpha, labelSettings.bgColor)));
+        Pen penPlus(Color(BR(borderAlpha, labelSettings.borderColor)), labelSettings.borderSize+0.0f);
+        SolidBrush brushPlus(Color(BR(bgAlpha, labelSettings.bgColor)));
         drawLabelFrame(gCanvas, &penPlus, &brushPlus, rc, (REAL)labelSettings.cornerSize);
         SolidBrush textBrushPlus(Color(BR(textAlpha, labelSettings.textColor)));
         gCanvas->DrawString( keyLabels[i].text,
@@ -279,8 +280,8 @@ static void startFade() {
     }
 
     for(i = 0; i < labelCount; i++) {
-        RectF &rt = keyLabels[i].rect;
-        if(keyLabels[i].time > labelSettings.fadeDuration) {
+        // RectF &rt = keyLabels[i].rect;
+        if((DWORD)keyLabels[i].time > labelSettings.fadeDuration) {
             if(keyLabels[i].fade) {
                 keyLabels[i].time -= SHOWTIMER_INTERVAL;
             }
@@ -453,7 +454,7 @@ void prepareLabels() {
     for(DWORD i = 0; i < labelCount; i ++) {
         keyLabels[i].rect.X = (REAL)labelSettings.borderSize;
         keyLabels[i].rect.Y = paddingH + unitH*(i+offset) + labelSpacing + labelSettings.borderSize;
-        if(keyLabels[i].time > labelSettings.lingerTime+labelSettings.fadeDuration) {
+        if((DWORD)keyLabels[i].time > labelSettings.lingerTime+labelSettings.fadeDuration) {
             keyLabels[i].time = labelSettings.lingerTime+labelSettings.fadeDuration;
         }
         if(keyLabels[i].time > 0) {
@@ -544,7 +545,7 @@ HWND CreateToolTip(HWND hDlg, int toolID, LPWSTR pszText) {
     HWND hwndTool = GetDlgItem(hDlg, toolID);
 
     // Create the tooltip. g_hInst is the global instance handle.
-    HWND hwndTip = CreateWindowEx(NULL, TOOLTIPS_CLASS, NULL,
+    HWND hwndTip = CreateWindowEx(0, TOOLTIPS_CLASS, NULL,
             WS_POPUP |TTS_ALWAYSTIP | TTS_BALLOON,
             CW_USEDEFAULT, CW_USEDEFAULT,
             CW_USEDEFAULT, CW_USEDEFAULT,
@@ -741,7 +742,7 @@ static void previewLabel() {
 
     getLabelSettings(hDlgSettings, previewLabelSettings);
     DWORD mg = previewLabelSettings.lingerTime+previewLabelSettings.fadeDuration+600;
-    double r;
+    double r = 0;
     if(previewTime < PREVIEWTIMER_INTERVAL || previewTime > mg) {
         previewTime = mg;
     }
@@ -781,8 +782,8 @@ static void previewLabel() {
     origin.Y = rc.Y;
 
     int bgAlpha = (int)(r*previewLabelSettings.bgOpacity), textAlpha = (int)(r*previewLabelSettings.textOpacity), borderAlpha = (int)(r*previewLabelSettings.borderOpacity);
-    Pen penPlus(Color::Color(BR(borderAlpha, previewLabelSettings.borderColor)), previewLabelSettings.borderSize+0.0f);
-    SolidBrush brushPlus(Color::Color(BR(bgAlpha, previewLabelSettings.bgColor)));
+    Pen penPlus(Color(BR(borderAlpha, previewLabelSettings.borderColor)), previewLabelSettings.borderSize+0.0f);
+    SolidBrush brushPlus(Color(BR(bgAlpha, previewLabelSettings.bgColor)));
     drawLabelFrame(&g, &penPlus, &brushPlus, rc, (REAL)previewLabelSettings.cornerSize);
     SolidBrush textBrushPlus(Color(BR(textAlpha, previewLabelSettings.textColor)));
     g.DrawString(text, wcslen(text), &font, origin, &textBrushPlus);
@@ -796,6 +797,7 @@ static void previewLabel() {
 BOOL CALLBACK SettingsWndProc(HWND hwndDlg, UINT msg, WPARAM wParam, LPARAM lParam)
 {
     WCHAR tmp[256];
+    TCHAR tooltip_title[] = L"[+] to display combination keys like [Alt + Tab].";
     switch (msg)
     {
         case WM_INITDIALOG:
@@ -806,7 +808,7 @@ BOOL CALLBACK SettingsWndProc(HWND hwndDlg, UINT msg, WPARAM wParam, LPARAM lPar
                         desktopRect.right - desktopRect.left - settingsDlgRect.right + settingsDlgRect.left,
                         desktopRect.bottom - desktopRect.top - settingsDlgRect.bottom + settingsDlgRect.top, 0, 0, SWP_NOSIZE);
                 GetWindowRect(hwndDlg, &settingsDlgRect);
-                CreateToolTip(hwndDlg, IDC_COMBSCHEME, L"[+] to display combination keys like [Alt + Tab].");
+                CreateToolTip(hwndDlg, IDC_COMBSCHEME, tooltip_title);
                 HWND hCtrl = GetDlgItem(hwndDlg, IDC_ALIGNMENT);
                 ComboBox_InsertString(hCtrl, 0, L"Left");
                 ComboBox_InsertString(hCtrl, 1, L"Right");
@@ -1156,7 +1158,7 @@ void CreateMiniDump( LPEXCEPTION_POINTERS lpExceptionInfo) {
             hFile, mdt, ( lpExceptionInfo != 0 ) ? &mdei : 0, 0, 0);
 
         if ( !retv ) {
-            printf( ("MiniDumpWriteDump failed. Error: %u \n"), GetLastError() );
+            printf( ("MiniDumpWriteDump failed. Error: %ld \n"), GetLastError() );
         } else {
             printf( ("Minidump created.\n") );
         }
@@ -1165,7 +1167,7 @@ void CreateMiniDump( LPEXCEPTION_POINTERS lpExceptionInfo) {
         CloseHandle( hFile );
 
     } else {
-        printf( ("CreateFile failed. Error: %u \n"), GetLastError() );
+        printf( ("CreateFile failed. Error: %ld \n"), GetLastError() );
     }
 }
 
@@ -1256,7 +1258,7 @@ int WINAPI WinMain(HINSTANCE hThisInst, HINSTANCE hPrevInst,
     showTimer.Start(SHOWTIMER_INTERVAL);
     previewTimer.OnTimedEvent = previewLabel;
 
-    kbdhook = SetWindowsHookEx(WH_KEYBOARD_LL, LLKeyboardProc, hThisInst, NULL);
+    kbdhook = SetWindowsHookEx(WH_KEYBOARD_LL, LLKeyboardProc, hThisInst, 0);
     moshook = SetWindowsHookEx(WH_MOUSE_LL, LLMouseProc, hThisInst, 0);
     SetErrorMode(SEM_FAILCRITICALERRORS | SEM_NOGPFAULTERRORBOX);
     _set_abort_behavior(0,_WRITE_ABORT_MSG);
@@ -1272,7 +1274,7 @@ int WINAPI WinMain(HINSTANCE hThisInst, HINSTANCE hPrevInst,
                 moshook = NULL;
             } else {
                 showText(L"\u263b - KeyCastOW ON", 1);
-                kbdhook = SetWindowsHookEx(WH_KEYBOARD_LL, LLKeyboardProc, hInstance, NULL);
+                kbdhook = SetWindowsHookEx(WH_KEYBOARD_LL, LLKeyboardProc, hInstance, 0);
                 moshook = SetWindowsHookEx(WH_MOUSE_LL, LLMouseProc, hThisInst, 0);
             }
         } else {

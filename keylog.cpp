@@ -1,6 +1,7 @@
 // Copyright © 2014 Brook Hong. All Rights Reserved.
 //
 
+#include "keycast.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <Windows.h>
@@ -186,7 +187,7 @@ void log(const std::stringstream & line);
 LPCWSTR GetSymbolFromVK(UINT vk, UINT sc, BOOL mod, HKL hklLayout) {
     static WCHAR symbol[32];
     BYTE btKeyState[256];
-    WORD Symbol = 0;
+    // WORD Symbol = 0;
     WCHAR cc[2];
     if(mod) {
         ZeroMemory(btKeyState, sizeof(btKeyState));
@@ -220,7 +221,7 @@ LPCWSTR GetSymbolFromVK(UINT vk, UINT sc, BOOL mod, HKL hklLayout) {
 LPCWSTR getSpecialKey(UINT vk) {
     static WCHAR unknown[32];
     for (size_t i=0; i < nSpecialKeys; ++i) {
-        if(specialKeys[i].val == vk) {
+        if((UINT)specialKeys[i].val == vk) {
             return specialKeys[i].label;
         }
     }
@@ -316,7 +317,7 @@ LRESULT CALLBACK LLKeyboardProc(int nCode, WPARAM wp, LPARAM lp)
     } else if(wp == WM_KEYUP || wp == WM_SYSKEYUP) {
         lastvk = 0;
         fadeLastLabel(TRUE);
-        if(k.vkCode >= spk && k.vkCode <= 0xA5 ||
+        if((k.vkCode >= spk && k.vkCode <= 0xA5) ||
                 k.vkCode == 0x5B || k.vkCode == 0x5C) {
             cleanModifier(k.vkCode, modifierkey);
             modifierUsed = FALSE;
@@ -327,7 +328,7 @@ LRESULT CALLBACK LLKeyboardProc(int nCode, WPARAM wp, LPARAM lp)
             return TRUE;
         }
         int fin = 0;
-        if(k.vkCode >= spk && k.vkCode <= 0xA5 ||          // ctrl / alt
+        if((k.vkCode >= spk && k.vkCode <= 0xA5) ||          // ctrl / alt
                 k.vkCode == 0x5B || k.vkCode == 0x5C) {     // win
             LPCWSTR ck = getSpecialKey(k.vkCode);
             if(modifierkey[0] == '\0') {
@@ -346,7 +347,7 @@ LRESULT CALLBACK LLKeyboardProc(int nCode, WPARAM wp, LPARAM lp)
                 }
             }
         } else {
-            WORD a = 0;
+            // WORD a = 0;
             BOOL mod = modifierkey[0] != '\0';
             if(k.vkCode == 0x08 || k.vkCode == 0x09 || k.vkCode == 0x0D || k.vkCode == 0x1B || k.vkCode == 0x20) {
                 // for <BS>/<Tab>/<ENTER>/<ESC>/<SPACE>, treat them as specialKeys
