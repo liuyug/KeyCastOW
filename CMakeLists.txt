@@ -10,7 +10,7 @@ file(GLOB headers *.h)
 file(GLOB sources *.cpp)
 
 # resource
-file(GLOB resources resource.rc)
+file(GLOB resources keycastow.rc)
 
 # for IDE
 # source_group("Header files" FILES ${headers})
@@ -29,17 +29,13 @@ add_executable(${app_exe} WIN32 ${sources} ${headers} ${resources})
 
 # platform
 if (MINGW)
-    add_definitions(-D_WIN32)
-    add_definitions(-O2)
-    add_definitions(-Wall)
+    add_definitions(-D_WIN32 -D__MSVCRT_VERSION__=0x1000)
+    add_compile_options(-O2 -Wall)
 
-
-    add_definitions(-D__MSVCRT_VERSION__=0x1000)
     target_link_libraries(${app_exe} gdiplus dbghelp comctl32 msvcr100)
 elseif (UNIX)
     add_definitions(-D_LINUX)
-    add_definitions(-O2)
-    add_definitions(-Wall)
+    add_compile_options(-O2 -Wall)
 elseif (WIN32)
     add_definitions(-D_WIN32)
 endif()

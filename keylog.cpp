@@ -221,7 +221,7 @@ LPCWSTR GetSymbolFromVK(UINT vk, UINT sc, BOOL mod, HKL hklLayout) {
 LPCWSTR getSpecialKey(UINT vk) {
     static WCHAR unknown[32];
     for (size_t i=0; i < nSpecialKeys; ++i) {
-        if((UINT)specialKeys[i].val == vk) {
+        if(specialKeys[i].val == (int)vk) {
             return specialKeys[i].label;
         }
     }

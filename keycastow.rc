@@ -1,5 +1,7 @@
 // Microsoft Visual C++ generated resource script.
 //
+#pragma code_page(65001)
+
 #include "resource.h"
 
 #define APSTUDIO_READONLY_SYMBOLS
@@ -7,7 +9,20 @@
 //
 // Generated from the TEXTINCLUDE 2 resource.
 //
-#include "winres.h"
+// #include "winres.h"
+#if defined(__MINGW64__) || defined(__MINGW32__)
+	// MinGW-w64, MinGW
+	#if defined(__has_include) && __has_include(<winres.h>)
+		#include <winres.h>
+	#else
+		#include <afxres.h>
+		#include <winresrc.h>
+	#endif
+#else
+	// MSVC, Windows SDK
+	#include <winres.h>
+#endif
+
 
 /////////////////////////////////////////////////////////////////////////////
 #undef APSTUDIO_READONLY_SYMBOLS
@@ -193,10 +208,10 @@ END
 
 IDD_DLGSETTINGS DLGINIT
 BEGIN
-    IDC_ALIGNMENT, 0x403, 5, 0
-0x654c, 0x7466, "\000" 
-    IDC_ALIGNMENT, 0x403, 6, 0
-0x6952, 0x6867, 0x0074, 
+    IDC_ALIGNMENT, 0x403, 5, 0,
+0x654c, 0x7466, "\000",
+    IDC_ALIGNMENT, 0x403, 6, 0,
+0x6952, 0x6867, 0x0074,
     0
 END
 
