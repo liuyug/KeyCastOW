@@ -1,21 +1,3 @@
-
-
-fork from https://github.com/brookhong/KeyCastOW
-
-+ add cmake profile
-+ use MingW compile
-
-## build
-
-```
-mkdir build
-cd build
-cmake -G "MinGW Makefiles"
-make
-```
-
-----
-
 # KeyCastOW
 keystroke visualizer for Windows, lets you easily display your keystrokes while recording screencasts.
 
