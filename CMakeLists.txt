@@ -24,18 +24,16 @@ add_definitions(-D_UNICODE -DUNICODE)
 # add_definitions(-DNDEBUG)
 # add_definitions(-g)
 
-
-add_executable(${app_exe} WIN32 ${sources} ${headers} ${resources})
-
 # platform
 if (MINGW)
     add_definitions(-D_WIN32 -D__MSVCRT_VERSION__=0x1000)
     add_compile_options(-O2 -Wall)
-
-    target_link_libraries(${app_exe} gdiplus dbghelp comctl32 msvcr100)
-elseif (UNIX)
-    add_definitions(-D_LINUX)
-    add_compile_options(-O2 -Wall)
+    # elseif (UNIX)
+    #     add_definitions(-D_LINUX)
+    #     add_compile_options(-O2 -Wall)
 elseif (WIN32)
     add_definitions(-D_WIN32)
 endif()
+
+add_executable(${app_exe} WIN32 ${sources} ${headers} ${resources})
+target_link_libraries(${app_exe} gdiplus dbghelp comctl32 msvcr100)
